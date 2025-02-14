@@ -83,6 +83,7 @@ public:
 };
 
 int main() {
+    setlocale(LC_ALL, "RU");
     DynamicArray arr1(5);
     arr1.add(10);
     arr1.add(20);
