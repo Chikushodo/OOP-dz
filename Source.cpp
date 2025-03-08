@@ -1,106 +1,196 @@
 #include <iostream>
-
+#include <string>
+// its so hard, im cry
+// in street rain, in soul pain
 using namespace std;
 
-class DynamicArray {
-private:
-    int* data;       
-    int size;        
-    int capacity;   
+class Animal {
+protected:
+    string name;  
+    int age;    
 
 public:
-    DynamicArray(int initialCapacity = 10) : size(0), capacity(initialCapacity) {
-        cout << initialCapacity << endl;
-        data = new int[capacity];
+    // konstruktor po ymolch
+    Animal() : name("Unknown"), age(0) {}
+
+    // s parametrami
+    Animal(string n, int a) : name(n) {}
+
+    //metod vivoda o animals
+    virtual void display() const {
+        cout << "name: " << name << ", age: " << age << endl;
     }
 
-    ~DynamicArray() {
-        cout << "Вызван деструктор" << endl;
-        delete[] data; 
+    // peregryz sravnenia
+    bool operator==(const Animal& other) const {
+        return (name == other.name && age == other.age);
     }
 
-    DynamicArray(const DynamicArray& other) : size(other.size + 1), capacity(other.capacity + 1) {
-        cout << "Вызван конструктор копирования" << endl;
-        cout << "   Копирование размера: " << other.size << " -> " << size << endl;
-        cout << "   Копирование вместимости: " << other.capacity << " -> " << capacity << endl;
-
-        data = new int[capacity];
-        cout << "   Выделена новая память для " << capacity << " элементов" << endl;
-
-        for (int i = 0; i < other.size; ++i) {
-            data[i] = other.data[i] + 1; 
-            cout << "   Копирование элемента " << i << ": " << other.data[i] << " -> " << data[i] << endl;
-        }
-        cout << "Конструктор копирования завершен" << endl;
-    }
-    void add(int value) {
-        if (size == capacity) {
-            int newCapacity = capacity * 2;
-            cout << "Увеличение capacity с " << capacity << " до " << newCapacity << endl;
-            int* newData = new int[newCapacity];
-            for (int i = 0; i < size; ++i) {
-                newData[i] = data[i];
-            }
-            delete[] data;
-            data = newData;
-            capacity = newCapacity;
-        }
-        data[size] = value;
-        size++;
+    // peregryz slogenia
+    Animal operator+(const Animal& other) {
+        return Animal(name + " & " + other.name, age + other.age);
     }
 
-    int getSize() const { return size; }
-    int getCapacity() const { return capacity; }
-
-    int getElement(int index) const {
-        if (index >= 0 && index < size) {
-            return data[index];
-        }
-        else {
-            cout << "Ошибка: Индекс за пределами допустимого диапазона." << endl;
-            return -1; 
-        }
+    // inkriment age
+    Animal& operator++() {
+        age++;
+        return *this;
     }
 
-    void setElement(int index, int value) {
-        if (index >= 0 && index < size) {
-            data[index] = value;
-        }
-        else {
-            cout << "Ошибка: Индекс за пределами допустимого диапазона." << endl;
-        }
-    }
-    void print() const {
-        cout << "Массив: [";
-        for (int i = 0; i < size; ++i) {
-            cout << data[i];
-            if (i < size - 1) {
-                cout << ", ";
-            }
-        }
-        cout << "]" << endl;
+    // destructor
+    virtual ~Animal() {}
+};
+
+// xichnik 
+class Predator : public Animal {
+public:
+    Predator(string n, int a) : Animal(n, a) {}
+
+    void display() const override {
+        cout << "predator: ";
+        Animal::display();
     }
 };
 
+class Fish : public Animal {
+public:
+    Fish(string n, int a) : Animal(n, a) {}
+
+    void display() const override {
+        cout << "fish: ";
+        Animal::display();
+    }
+};
+
+// reptilia
+class Reptile : public Animal {
+public:
+    Reptile(string n, int a) : Animal(n, a) {}
+
+    void display() const override {
+        cout << "reptile: ";
+        Animal::display();
+    }
+};
+
+// kollekcia animals
+const int MAX_ANIMALS = 100; // max
+Animal* animals[MAX_ANIMALS]; // massiv
+int animalCount = 0; 
+
+// add
+void addAnimal() {
+    if (animalCount >= MAX_ANIMALS) {
+        cout << "dostignuto max" << endl;
+        return;
+    }
+
+    string name;
+    int age;
+
+    cout << "vvedite animal: ";
+    cin >> name;
+
+    cout << "vvedite age animal: ";
+    cin >> age;
+
+    // vibor
+    int type;
+    cout << "viberite type animals: 1 - predator, 2 - fish, 3 - reptyle: ";
+    cin >> type;
+
+    // create object ot vibora 
+    if (type == 1) {
+        animals[animalCount++] = new Predator(name, age);
+    }
+    else if (type == 2) {
+        animals[animalCount++] = new Fish(name, age);
+    }
+    else if (type == 3) {
+        animals[animalCount++] = new Reptile(name, age);
+    }
+
+    cout << "animal successfully add" << endl;
+}
+
+// del animal po index
+void removeAnimal() {
+    int index;
+    cout << "vvedite index animal for delete" << animalCount - 1 << "): ";
+    cin >> index;
+
+    delete animals[index]; // osvob pam
+    for (int i = index; i < animalCount - 1; ++i) {
+        animals[i] = animals[i + 1]; // sdvig elements
+    }
+    animalCount--; // ymenshenie animal
+    cout << "animal successfully delete" << endl;
+}
+
+// vivod all animals
+void displayAllAnimals() {
+    if (animalCount == 0) {
+        cout << "pusto :(" << endl;
+        return;
+    }
+    for (int i = 0; i < animalCount; ++i) {
+        cout << "index " << i << ": ";
+        animals[i]->display(); // display kagdogo animal
+    }
+}
+
+// sravnenie animals
+void compareAnimals() {
+    int index1, index2;
+
+    cout << "vvedite index first animal (0-" << animalCount - 1 << "): ";
+    cin >> index1;
+    cout << "vvedite index second animal (0-" << animalCount - 1 << "): ";
+    cin >> index2;
+
+    if (*animals[index1] == *animals[index2]) {
+        cout << "Животные равны." << endl;
+    }
+    else {
+        cout << "Животные не равны." << endl;
+    }
+}
+
 int main() {
-    setlocale(LC_ALL, "RU");
-    DynamicArray arr1(5);
-    arr1.add(10);
-    arr1.add(20);
-    arr1.add(30);
-    cout << "Исходный массив:" << endl;
-    arr1.print();
-    cout << "Размер: " << arr1.getSize() << ", Вместимость: " << arr1.getCapacity() << endl;
+    int choice;
 
-    cout << "\nСоздание копии..." << endl;
-    DynamicArray arr2 = arr1; 
-    cout << "Копия массива:" << endl;
-    arr2.print();
-    cout << "Размер: " << arr2.getSize() << ", Вместимость: " << arr2.getCapacity() << endl;
+    do {
+        cout << "\nmenu:\n";
+        cout << "1. add new animal\n";
+        cout << "2. delete animal\n";
+        cout << "3. vivesti vsex animal\n";
+        cout << "4. sravnit two animals\n";
+        cout << "5. exit\n";
+        cout << "viberite opciy: ";
+        cin >> choice;
 
-    cout << "\nИзменение элемента в копии..." << endl;
-    arr2.setElement(0, 100);
-    arr2.print();
-    cout << "Исходный массив после изменения копии:" << endl;
-    arr1.print();
+        switch (choice) {
+        case 1:
+            addAnimal();
+            break;
+        case 2:
+            removeAnimal();
+            break;
+        case 3:
+            displayAllAnimals();
+            break;
+        case 4:
+            compareAnimals();
+            break;
+        case 5:
+            cout << "zavershenie work" << endl;
+            break;
+        default:
+            cout << "nedopustim vvod" << endl;
+        }
+    } while (choice != 5);
+
+    for (int i = 0; i < animalCount; i++) {
+        delete animals[i];
+    }
 }
